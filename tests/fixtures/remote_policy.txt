@@ -1,0 +1,17 @@
+Remote Work Policy
+
+Eligibility
+
+Employees who have completed six months of service and hold a role approved by their department head may work remotely up to three days per week. Contractors are not eligible for the remote work arrangement.
+
+Equipment and Expenses
+
+The company provides a laptop and a monitor for approved remote employees. A monthly stipend of fifty dollars covers internet costs. Employees must submit expense reports within thirty days, and receipts are required for any purchase above twenty-five dollars.
+
+Security Requirements
+
+All remote employees must connect through the corporate VPN and enable full disk encryption on company laptops. Confidential documents must never be stored on personal devices. Security incidents must be reported to the helpdesk within one hour of discovery.
+
+Working Hours
+
+Remote employees must be available during core hours from ten in the morning until three in the afternoon in their local time zone. Managers review remote work arrangements every year and may revoke them with two weeks notice.

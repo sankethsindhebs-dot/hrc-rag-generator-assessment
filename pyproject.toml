@@ -1,0 +1,20 @@
+[project]
+name = "rag-generator"
+version = "0.1.0"
+description = "Runtime-document RAG with grounded, cited answers"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "pypdf",
+    "fastembed",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "reportlab"]
+
+[tool.setuptools]
+packages = ["rag"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
