@@ -13,6 +13,9 @@ class Settings:
     # calibrated (scripts/calibrate.py). It is a cheap pre-filter, not proof of grounding.
     min_score: float = 0.45
     max_file_mb: int = 20
+    # Claude model id. Deliberately no default: it is chosen via RAG_LLM_MODEL.
+    # The API key is read by the Anthropic SDK from ANTHROPIC_API_KEY and never stored here.
+    llm_model: str = ""
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -24,4 +27,5 @@ class Settings:
             top_k=int(os.getenv("RAG_TOP_K", d.top_k)),
             min_score=float(os.getenv("RAG_MIN_SCORE", d.min_score)),
             max_file_mb=int(os.getenv("RAG_MAX_FILE_MB", d.max_file_mb)),
+            llm_model=os.getenv("RAG_LLM_MODEL", d.llm_model),
         )

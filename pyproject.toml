@@ -7,10 +7,14 @@ dependencies = [
     "numpy",
     "pypdf",
     "fastembed",
+    "anthropic",
+    "fastapi",
+    "python-multipart",
+    "uvicorn",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "reportlab"]
+dev = ["pytest", "reportlab", "httpx"]
 
 [tool.setuptools]
 packages = ["rag"]

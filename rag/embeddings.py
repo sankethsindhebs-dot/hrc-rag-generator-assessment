@@ -4,6 +4,10 @@ from typing import Protocol
 import numpy as np
 
 
+class EmbeddingError(RuntimeError):
+    """The embedding model could not be loaded or run (e.g. the download is blocked)."""
+
+
 class Embedder(Protocol):
     def embed_documents(self, texts: list[str]) -> np.ndarray: ...
     def embed_query(self, text: str) -> np.ndarray: ...
@@ -25,7 +29,13 @@ class FastEmbedEmbedder:
     def _get(self):
         if self._model is None:
             from fastembed import TextEmbedding  # lazy: import and download only when used
-            self._model = TextEmbedding(self.model_name)
+            try:
+                self._model = TextEmbedding(self.model_name)
+            except Exception as exc:  # download/network/ONNX failures all mean "no embedder"
+                raise EmbeddingError(
+                    f"could not load embedding model '{self.model_name}' ({type(exc).__name__}); "
+                    "it is downloaded on first use and needs access to huggingface.co"
+                ) from exc
         return self._model
 
     def embed_documents(self, texts: list[str]) -> np.ndarray:

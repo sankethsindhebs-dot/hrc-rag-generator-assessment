@@ -29,3 +29,46 @@ class HashEmbedder:
 
     def embed_query(self, text):
         return self._vec(text)
+
+
+class ScriptedLLM:
+    """Returns a fixed reply (str) or computes one from (system, user). Records every call."""
+
+    def __init__(self, reply):
+        self.reply = reply
+        self.calls: list[tuple[str, str, dict]] = []
+
+    def generate(self, system, user, schema):
+        self.calls.append((system, user, schema))
+        return self.reply(system, user) if callable(self.reply) else self.reply
+
+
+SOURCE_RE = re.compile(r'<source id="(S\d+)"[^>]*>\n(.*?)\n</source>', re.S)
+QUESTION_RE = re.compile(r"Question: (.*)$", re.S)
+
+
+class EvidenceLLM:
+    """Deterministic stand-in for an honest model: cites the source sharing the most
+    content words with the question, and declines if fewer than two words overlap."""
+
+    def __init__(self):
+        self.calls = 0
+
+    @staticmethod
+    def _words(text):
+        return {t for t in re.findall(r"[a-z0-9]+", text.lower()) if t not in STOP}
+
+    def generate(self, system, user, schema):
+        import json
+
+        self.calls += 1
+        q = self._words(QUESTION_RE.search(user).group(1))
+        best, best_overlap = None, 0
+        for label, text in SOURCE_RE.findall(user):
+            overlap = len(q & self._words(text))
+            if overlap > best_overlap:
+                best, best_overlap = (label, text), overlap
+        if best is None or best_overlap < 2:
+            return json.dumps({"sufficient": False, "answer": "", "citations": []})
+        label, text = best
+        return json.dumps({"sufficient": True, "answer": f"{text[:120]} [{label}]", "citations": [label]})
