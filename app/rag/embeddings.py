@@ -9,8 +9,10 @@ from __future__ import annotations
 
 import hashlib
 import os
+import logging
 import shutil
 import tarfile
+import threading
 import tempfile
 import urllib.error
 import urllib.request
@@ -21,7 +23,10 @@ import numpy as np
 
 from app.rag.errors import ModelUnavailableError
 
+log = logging.getLogger(__name__)
+
 MODEL_NAME = "onnx-all-MiniLM-L6-v2"
+MODEL_DIMENSION = 384
 REQUIRED_FILES = ("model.onnx", "tokenizer.json")
 MAX_SEQUENCE_LENGTH = 256  # all-MiniLM-L6-v2's standard window; longer text is truncated
 _DOWNLOAD_TIMEOUT_S = 60
@@ -143,3 +148,48 @@ class OnnxMiniLMEmbedder:
         pooled = (hidden * weights).sum(axis=1) / np.clip(weights.sum(axis=1), 1e-9, None)
         norms = np.linalg.norm(pooled, axis=1, keepdims=True)
         return (pooled / np.clip(norms, 1e-12, None)).astype(np.float32)
+
+
+class LazyOnnxEmbedder:
+    """The default embedder, loaded on first use so the app can start (and report its status)
+    without the model. ``name`` and ``dimension`` are known up front; the first ``embed`` -- or
+    ``warm()`` -- downloads, verifies and loads the model. A failure is raised as
+    ModelUnavailableError and retried on the next call."""
+
+    name = MODEL_NAME
+    dimension = MODEL_DIMENSION
+
+    def __init__(self, cache_dir: Path, url: str, sha256: str):
+        self._args = (cache_dir, url, sha256)
+        self._embedder: OnnxMiniLMEmbedder | None = None
+        self._lock = threading.Lock()
+        self.last_error: str | None = None
+
+    @property
+    def loaded(self) -> bool:
+        return self._embedder is not None
+
+    def warm(self) -> None:
+        self._load()
+
+    def embed(self, texts: Sequence[str]) -> np.ndarray:
+        return self._load().embed(texts)
+
+    def _load(self) -> OnnxMiniLMEmbedder:
+        embedder = self._embedder
+        if embedder is not None:
+            return embedder
+        with self._lock:  # concurrent first requests wait for one download instead of racing
+            if self._embedder is None:
+                try:
+                    loaded = OnnxMiniLMEmbedder(ensure_model(*self._args))
+                    if loaded.dimension != self.dimension:
+                        raise ModelUnavailableError(
+                            f"model produces {loaded.dimension}-dimensional vectors, expected {self.dimension}"
+                        )
+                except ModelUnavailableError as exc:
+                    self.last_error = str(exc)
+                    log.error("embedding model unavailable: %s", exc)
+                    raise
+                self._embedder, self.last_error = loaded, None
+            return self._embedder

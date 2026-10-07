@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAG Generator</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>RAG Generator</h1>
+    <p class="tagline">Upload documents, then ask questions that are answered only from them.</p>
+  </header>
+
+  <div id="banners" role="status" aria-live="polite"></div>
+
+  <main>
+    <section class="panel" aria-labelledby="collections-title">
+      <h2 id="collections-title">1. Collection</h2>
+      <p class="hint">A collection is an isolated set of documents. Questions only ever see the collection you select.</p>
+      <form id="create-form" class="row">
+        <label for="collection-name" class="visually-hidden">New collection name</label>
+        <input id="collection-name" type="text" maxlength="100" placeholder="New collection name" required>
+        <button type="submit">Create</button>
+      </form>
+      <ul id="collection-list" class="item-list" aria-label="Collections"></ul>
+      <p id="collection-message" class="message" role="alert"></p>
+      <button id="delete-button" type="button" class="danger" disabled>Delete selected collection</button>
+    </section>
+
+    <section class="panel" aria-labelledby="documents-title">
+      <h2 id="documents-title">2. Documents <span id="selected-name" class="muted"></span></h2>
+      <p class="hint">Supported: .txt, .md, .html, .pdf, .docx</p>
+      <form id="upload-form">
+        <label for="file-input">Choose files</label>
+        <input id="file-input" type="file" multiple accept=".txt,.md,.markdown,.html,.htm,.pdf,.docx" disabled>
+        <details>
+          <summary>…or paste text</summary>
+          <label for="paste-name">Name</label>
+          <input id="paste-name" type="text" maxlength="100" value="pasted-text.txt">
+          <label for="paste-text">Text</label>
+          <textarea id="paste-text" rows="5" disabled></textarea>
+        </details>
+        <button id="upload-button" type="submit" disabled>Upload and index</button>
+      </form>
+      <ul id="upload-results" class="item-list" aria-label="Upload results"></ul>
+      <h3>Indexed documents</h3>
+      <ul id="document-list" class="item-list" aria-label="Indexed documents"></ul>
+    </section>
+
+    <section class="panel wide" aria-labelledby="ask-title">
+      <h2 id="ask-title">3. Ask</h2>
+      <form id="ask-form">
+        <label for="question">Question</label>
+        <textarea id="question" rows="2" maxlength="2000" placeholder="Ask something the documents might answer" disabled></textarea>
+        <button id="ask-button" type="submit" disabled>Ask</button>
+      </form>
+      <div id="result" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

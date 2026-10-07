@@ -103,3 +103,16 @@ def test_score_gap_between_relevant_and_irrelevant_questions(real_manager):
     off = real_manager.query(c.id, "Who won the 1998 football world cup?", top_k=1)[0].score
     print(f"\non-topic top score={on:.3f}  off-topic top score={off:.3f}")
     assert on > off
+
+
+def test_lazy_embedder_downloads_verifies_loads_and_matches_the_direct_embedder(real_embedder):
+    """The production default: nothing loads until first use, then it behaves like the direct embedder."""
+    from app.rag.embeddings import MODEL_DIMENSION, MODEL_NAME, LazyOnnxEmbedder
+
+    s = Settings.from_env()
+    lazy = LazyOnnxEmbedder(s.model_cache_dir, s.model_url, s.model_sha256)
+    assert lazy.loaded is False and lazy.name == MODEL_NAME and lazy.dimension == MODEL_DIMENSION
+    vectors = lazy.embed(["Opening hours at the cafe"])
+    assert lazy.loaded is True and lazy.last_error is None
+    assert np.allclose(vectors, real_embedder.embed(["Opening hours at the cafe"]), atol=1e-5)
+    assert lazy.dimension == real_embedder.dimension
