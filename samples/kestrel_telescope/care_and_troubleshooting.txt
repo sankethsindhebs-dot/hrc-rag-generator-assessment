@@ -1,0 +1,15 @@
+Kestrel-9 care and troubleshooting
+
+Cleaning the mirror: Do not clean the mirror unless it is visibly dirty. Dust has almost
+no effect on image quality. If cleaning is necessary, rinse gently with distilled water
+and let it air dry. Never wipe the mirror with a cloth or paper towel.
+
+Collimation: If stars look like comets instead of sharp points, the mirrors need
+collimation. Use the three thumbscrews at the back of the tube, adjusting one at a time
+by a quarter turn while checking a bright star at high magnification.
+
+Warranty: The Kestrel-9 is covered for two years against manufacturing defects. The
+warranty does not cover damage to the mirror coating caused by cleaning.
+
+Safety: Never point the telescope at the Sun without a certified solar filter fitted over
+the front opening. Doing so can cause permanent blindness.

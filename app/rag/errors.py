@@ -35,3 +35,11 @@ class ModelUnavailableError(RagError):
 
 class EmbedderMismatchError(RagError):
     """A persisted collection was built with a different embedder than the one in use."""
+
+
+class StorageError(RagError):
+    """Server-side persistence failed (disk full, permissions, ...). Not the caller's fault."""
+
+
+class StorageCorruptionError(StorageError):
+    """Persisted state exists but is unreadable, truncated, or internally inconsistent."""
