@@ -290,5 +290,13 @@ streaming answers.
 This project was built with an AI coding agent (Claude Code) **on purpose**: it is an *Agentic Coding Assessment*, and the
 point is to show how an agent can be directed to deliver working, tested software. The work proceeded in reviewed slices — domain layer,
 storage/concurrency hardening, grounded generation with threshold calibration, then the API and UI — each followed by human review,
-adversarial testing, and deliberate breakage of the code to confirm the tests catch regressions. The **complete agent transcript is
-included with the submission** alongside this repository.
+adversarial testing, and deliberate breakage of the code to confirm the tests catch regressions.
+
+The **complete agent transcript is in this repository** under `transcript/`:
+
+* `agent_session.jsonl` — the unedited Claude Code session log and the source of truth: every prompt, reply, tool call and tool result.
+* `agent_session_readable.md` — a mechanical Markdown rendering of that log for easier reading, with no redaction, truncation or
+  paraphrase (pure bookkeeping entries such as token counters exist only in the `.jsonl`).
+
+Both files were captured immediately before the commit that added them, so they end just before that commit. They are unredacted and
+therefore contain local file paths and account identifiers.
