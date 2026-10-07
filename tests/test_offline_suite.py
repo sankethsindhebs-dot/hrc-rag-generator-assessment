@@ -20,7 +20,8 @@ def collect(*extra):
 def test_default_run_deselects_every_real_model_test():
     result = collect()
     assert result.returncode == 0, result.stderr
-    assert "test_semantic_model" not in result.stdout
+    for module in ("test_semantic_model", "test_calibration", "test_live_anthropic"):
+        assert module not in result.stdout
     assert "deselected" in result.stdout
 
 
@@ -30,9 +31,16 @@ def test_model_tests_still_exist_and_are_selectable_explicitly():
     assert "test_semantic_model.py::" in result.stdout
 
 
-def test_model_marker_is_registered():
+def test_live_api_tests_exist_but_only_run_when_asked():
+    result = collect("-m", "live")
+    assert result.returncode == 0, result.stderr
+    assert "test_live_anthropic.py::" in result.stdout
+
+
+def test_markers_are_registered():
     result = collect("--markers")
-    assert result.returncode == 0 and "@pytest.mark.model" in result.stdout
+    assert result.returncode == 0
+    assert "@pytest.mark.model" in result.stdout and "@pytest.mark.live" in result.stdout
 
 
 def test_network_access_is_refused_in_offline_tests():

@@ -16,11 +16,13 @@ dependencies = [
     "pypdf>=6.17,<7",
     "python-docx>=1.2,<2",
     "beautifulsoup4>=4.15,<5",
+    "anthropic>=1.11,<2",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=9.1,<10",
+    "httpx2>=2.13,<3",   # the Anthropic 1.x SDK's HTTP layer; the generator tests mock it directly
 ]
 
 [tool.setuptools.packages.find]
@@ -29,9 +31,11 @@ include = ["app*"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-# The default run is offline and deterministic: real-model tests are deselected.
+# The default run is offline and deterministic: real-model and live-API tests are deselected.
 # Run them explicitly with:  pytest -m model      (real embedding model, downloads on first use)
-addopts = "-m 'not model' --strict-markers"
+#                            pytest -m live       (real Claude calls; needs ANTHROPIC_API_KEY, costs money)
+addopts = "-m 'not model and not live' --strict-markers"
 markers = [
     "model: needs the real ONNX embedding model (downloaded on first use); excluded by default",
+    "live: makes real Anthropic API calls (needs ANTHROPIC_API_KEY, costs money); excluded by default",
 ]

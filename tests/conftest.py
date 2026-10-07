@@ -34,8 +34,8 @@ def manager(settings, embedder):
 @pytest.fixture(autouse=True)
 def _offline_guard(request, monkeypatch):
     """Offline tests must never touch the network. Only tests marked `model` (which may
-    download the embedding model) are exempt."""
-    if request.node.get_closest_marker("model"):
+    download the embedding model) or `live` (real API calls) are exempt."""
+    if request.node.get_closest_marker("model") or request.node.get_closest_marker("live"):
         return
 
     def refuse(*args, **kwargs):

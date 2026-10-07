@@ -43,3 +43,17 @@ class StorageError(RagError):
 
 class StorageCorruptionError(StorageError):
     """Persisted state exists but is unreadable, truncated, or internally inconsistent."""
+
+
+class GenerationError(RagError):
+    """The generator was called but could not produce a usable answer (API failure,
+    refusal, truncated or malformed output). Retrieval itself worked."""
+
+
+class GenerationUnavailableError(RagError):
+    """No generator is configured (e.g. ANTHROPIC_API_KEY is missing). ``evidence`` holds the
+    passages retrieval found, so a caller can still show them."""
+
+    def __init__(self, message: str, evidence: tuple = ()):
+        super().__init__(message)
+        self.evidence = evidence

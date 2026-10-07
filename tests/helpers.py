@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import io
 import re
-from typing import Sequence
+from typing import Callable, Sequence
 
 import numpy as np
+
+from app.rag.generation import GenerationResult, Passage
 
 # Words in the same group share an embedding dimension, so "car" is a perfect semantic
 # match for "automobile". Anything outside every group lands on a residual dimension.
@@ -96,3 +98,46 @@ def make_docx(paragraphs: list[str], table: list[list[str]] | None = None) -> by
     buf = io.BytesIO()
     doc.save(buf)
     return buf.getvalue()
+
+
+class FakeGenerator:
+    """Scriptable stand-in for Claude. Records exactly what it was given."""
+
+    available = True
+
+    def __init__(self, reply: GenerationResult | Callable[[str, Sequence[Passage]], GenerationResult] | Exception):
+        self._reply = reply
+        self.calls: list[tuple[str, list[Passage]]] = []
+
+    def generate(self, question: str, passages: Sequence[Passage]) -> GenerationResult:
+        self.calls.append((question, list(passages)))
+        if isinstance(self._reply, Exception):
+            raise self._reply
+        return self._reply(question, passages) if callable(self._reply) else self._reply
+
+    @property
+    def seen_texts(self) -> list[str]:
+        return [p.text for _, passages in self.calls for p in passages]
+
+
+def cites(answer: str, *labels: str, grounded: bool = True) -> GenerationResult:
+    return GenerationResult(grounded, answer, tuple(labels))
+
+
+class FakeAnthropicClient:
+    """Minimal stand-in for anthropic.Anthropic: records requests, returns a canned reply."""
+
+    def __init__(self, reply_text: str | None = None, *, stop_reason: str = "end_turn", raises: Exception | None = None):
+        from types import SimpleNamespace
+
+        self._ns = SimpleNamespace
+        self.reply_text, self.stop_reason, self.raises = reply_text, stop_reason, raises
+        self.requests: list[dict] = []
+        self.messages = self
+
+    def create(self, **kwargs):
+        self.requests.append(kwargs)
+        if self.raises:
+            raise self.raises
+        content = [] if self.reply_text is None else [self._ns(type="text", text=self.reply_text)]
+        return self._ns(stop_reason=self.stop_reason, content=content)

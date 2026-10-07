@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Mapping
 
@@ -15,6 +15,12 @@ DEFAULT_MODEL_URL = "https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v
 DEFAULT_MODEL_SHA256 = "913d7300ceae3b2dbc2c50d1de4baacab4be7b9380491c27fab7418616a16ec3"
 
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+
+DEFAULT_ANTHROPIC_MODEL = "claude-opus-5-5"
+# Retrieval-confidence gate: questions whose best chunk scores below this (cosine similarity,
+# all-MiniLM-L6-v2) are answered "insufficient context" without calling the generator.
+# Chosen from scripts/calibrate_threshold.py; see the README for the calibration table and limits.
+DEFAULT_MIN_SCORE = 0.15
 
 
 class ConfigError(ValueError):
@@ -31,6 +37,10 @@ class Settings:
     chunk_overlap: int  # characters
     top_k: int
     max_upload_bytes: int
+    min_score: float = DEFAULT_MIN_SCORE
+    anthropic_model: str = DEFAULT_ANTHROPIC_MODEL
+    # Never printed or logged: repr/compare are disabled so a Settings object is safe to show.
+    anthropic_api_key: str | None = field(default=None, repr=False, compare=False)
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "Settings":
@@ -64,6 +74,14 @@ class Settings:
         if chunk_overlap >= chunk_size:
             raise ConfigError("RAG_CHUNK_OVERLAP must be smaller than RAG_CHUNK_SIZE")
 
+        raw_score = env.get("RAG_MIN_SCORE")
+        try:
+            min_score = DEFAULT_MIN_SCORE if raw_score is None or raw_score.strip() == "" else float(raw_score)
+        except ValueError:
+            raise ConfigError(f"RAG_MIN_SCORE must be a number, got {raw_score!r}") from None
+        if not 0.0 <= min_score <= 1.0:
+            raise ConfigError(f"RAG_MIN_SCORE must be between 0 and 1, got {min_score}")
+
         return cls(
             data_dir=Path(get_str("RAG_DATA_DIR", "data")),
             model_cache_dir=Path(get_str("RAG_MODEL_CACHE_DIR", ".cache/models")),
@@ -73,4 +91,7 @@ class Settings:
             chunk_overlap=chunk_overlap,
             top_k=get_int("RAG_TOP_K", 4),
             max_upload_bytes=get_int("RAG_MAX_UPLOAD_BYTES", 10 * 1024 * 1024),
+            min_score=min_score,
+            anthropic_model=get_str("ANTHROPIC_MODEL", DEFAULT_ANTHROPIC_MODEL),
+            anthropic_api_key=(env.get("ANTHROPIC_API_KEY") or "").strip() or None,
         )
