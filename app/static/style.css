@@ -1,0 +1,60 @@
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --text: #1d2330; --muted: #5d6676; --border: #d5d9e0;
+  --accent: #2456d6; --accent-text: #ffffff;
+  --ok-bg: #e6f4ea; --ok: #1b6e35; --warn-bg: #fff4d6; --warn: #7a5600;
+  --bad-bg: #fde8e8; --bad: #9b1c1c; --info-bg: #e8effd; --info: #1c3f99;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151b; --panel: #1b2029; --text: #e6e9ef; --muted: #98a1b3; --border: #343b4a;
+    --accent: #6c93ff; --accent-text: #0d1220;
+    --ok-bg: #12301d; --ok: #7fd49a; --warn-bg: #3a2f10; --warn: #f0c768;
+    --bad-bg: #3b1818; --bad: #ff9c9c; --info-bg: #17254a; --info: #a9c1ff;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, sans-serif; }
+header, main, #banners { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+header { padding-top: 24px; }
+h1 { margin: 0; font-size: 1.6rem; }
+h2 { margin: 0 0 8px; font-size: 1.1rem; }
+h3 { margin: 16px 0 6px; font-size: 0.95rem; }
+.tagline, .hint, .muted { color: var(--muted); }
+.hint { margin: 0 0 12px; font-size: 0.9rem; }
+main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-bottom: 32px; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; min-width: 0; }
+.panel.wide { grid-column: 1 / -1; }
+@media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+label { display: block; margin: 10px 0 4px; font-size: 0.9rem; font-weight: 600; }
+input[type=text], textarea { width: 100%; padding: 8px; font: inherit; color: var(--text); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 6px; }
+textarea { resize: vertical; }
+.row { display: flex; gap: 8px; }
+.row input { flex: 1; }
+button { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--accent); cursor: pointer;
+  background: var(--accent); color: var(--accent-text); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button.danger { background: transparent; color: var(--bad); border-color: var(--bad); margin-top: 8px; }
+form > button { margin-top: 10px; }
+.item-list { list-style: none; margin: 8px 0; padding: 0; }
+.item-list li { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 6px; overflow-wrap: anywhere; }
+.item-list button.choice { width: 100%; text-align: left; background: transparent; color: var(--text); border: none; padding: 2px; }
+.item-list li.selected { border-color: var(--accent); background: var(--info-bg); }
+.item-list li.ok { color: var(--ok); } .item-list li.bad { color: var(--bad); }
+.message { min-height: 1.4em; margin: 6px 0 0; font-size: 0.9rem; color: var(--bad); }
+.banner { margin: 12px 0 0; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border); }
+.banner.warn { background: var(--warn-bg); color: var(--warn); }
+.banner.info { background: var(--info-bg); color: var(--info); }
+.banner.ok { background: var(--ok-bg); color: var(--ok); }
+.card { margin-top: 16px; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; }
+.badge.ok { background: var(--ok-bg); color: var(--ok); } .badge.warn { background: var(--warn-bg); color: var(--warn); }
+.badge.bad { background: var(--bad-bg); color: var(--bad); } .badge.info { background: var(--info-bg); color: var(--info); }
+.answer { white-space: pre-wrap; margin: 10px 0; font-size: 1.05rem; overflow-wrap: anywhere; }
+.explain { color: var(--muted); font-size: 0.9rem; margin: 6px 0; }
+.source { margin: 8px 0; padding: 8px 10px; border-left: 3px solid var(--accent); background: var(--bg); overflow-wrap: anywhere; }
+.source .meta { font-size: 0.85rem; color: var(--muted); }
+.source blockquote { margin: 4px 0 0; white-space: pre-wrap; font-size: 0.9rem; }
+.source.unused { border-left-color: var(--border); }
+details > summary { cursor: pointer; margin: 8px 0; }
+.visually-hidden { position: absolute; left: -9999px; }

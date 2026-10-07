@@ -218,3 +218,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# RAG Generator runtime data
+data/
+.cache/
+
+# Local secrets in any .env.* variant; only the credential-free template is tracked
+.env.*
+!.env.example
