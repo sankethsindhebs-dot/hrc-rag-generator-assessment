@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hrc-rag-generator"
+version = "0.1.0"
+description = "Runtime-document RAG generator with local semantic retrieval and grounded answers"
+requires-python = ">=3.11"
+# Ranges start at the lowest versions that passed the test suite and stop before the next major
+# release (verified on Python 3.11 and 3.13). numpy 2.5 needs Python >= 3.12, hence the 2.4 floor.
+dependencies = [
+    "numpy>=2.4,<3",
+    "onnxruntime>=1.29,<2",
+    "tokenizers>=0.23,<1",
+    "pypdf>=6.17,<7",
+    "python-docx>=1.2,<2",
+    "beautifulsoup4>=4.15,<5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.1,<10",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+# The default run is offline and deterministic: real-model tests are deselected.
+# Run them explicitly with:  pytest -m model      (real embedding model, downloads on first use)
+addopts = "-m 'not model' --strict-markers"
+markers = [
+    "model: needs the real ONNX embedding model (downloaded on first use); excluded by default",
+]
